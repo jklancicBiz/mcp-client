@@ -4,12 +4,13 @@ Main Window component for MCP Agent.
 This module provides the main window for the MCP Agent GUI.
 """
 
-from PyQt6.QtWidgets import QMainWindow, QSplitter, QStatusBar, QMenuBar, QMenu, QDialog, QProgressBar
+from PyQt6.QtWidgets import QMainWindow, QSplitter, QStatusBar, QMenuBar, QMenu, QDialog, QProgressBar, QLabel
 from PyQt6.QtCore import Qt, QSize, QPoint, pyqtSignal
 from PyQt6.QtGui import QCloseEvent, QAction
 from mcp_agent.ui.components.chat_panel import ChatPanel
 from mcp_agent.ui.components.tools_panel import ToolsPanel
 from mcp_agent.ui.components.notification import NotificationManager, NotificationType
+from mcp_agent.ui.components.feedback_manager import FeedbackManager, ProgressType
 from mcp_agent.ui.models.ui_config import UIConfig
 
 class MainWindow(QMainWindow):
@@ -39,6 +40,10 @@ class MainWindow(QMainWindow):
         # Restore window state
         self.restore_window_state()
         
+        # Initialize feedback controller
+        if hasattr(self.controller, 'feedback_controller'):
+            self.controller.feedback_controller.initialize(self)
+        
     def load_ui_config(self):
         """Load UI configuration from settings."""
         try:
@@ -60,6 +65,10 @@ class MainWindow(QMainWindow):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready")
+        
+        # Add permanent status widgets
+        self.connection_status_label = QLabel("Not connected")
+        self.status_bar.addPermanentWidget(self.connection_status_label)
         
         # Show or hide status bar based on configuration
         self.status_bar.setVisible(self.ui_config.show_status_bar)
@@ -199,6 +208,13 @@ class MainWindow(QMainWindow):
         """
         self.status_bar.setVisible(checked)
         self.ui_config.show_status_bar = checked
+        
+        # Update feedback manager if available
+        if hasattr(self.controller, 'feedback_controller') and self.controller.feedback_controller.feedback_manager:
+            if checked:
+                self.controller.feedback_controller.feedback_manager.set_status_bar(self.status_bar)
+            else:
+                self.controller.feedback_controller.feedback_manager.set_status_bar(None)
     
     def show_settings(self):
         """Show the settings dialog."""
@@ -246,3 +262,20 @@ class MainWindow(QMainWindow):
             message: The message to display.
         """
         self.status_bar.showMessage(message)
+        
+    def update_connection_status(self, connected: bool, server_name: str = None, model_name: str = None):
+        """Update the connection status in the status bar.
+        
+        Args:
+            connected: Whether the agent is connected.
+            server_name: Name of the connected server.
+            model_name: Name of the LLM model.
+        """
+        if connected:
+            status_text = f"Connected to {server_name}"
+            if model_name:
+                status_text += f" | {model_name}"
+        else:
+            status_text = "Not connected"
+            
+        self.connection_status_label.setText(status_text)
