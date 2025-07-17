@@ -76,6 +76,18 @@ class AgentController(QObject):
             
             return True
             
+        except MCPConnectionError as e:
+            logging.error(f"Failed to connect to MCP server: {e}")
+            self.error_occurred.emit(f"Failed to connect to MCP server: {e}")
+            self.connected = False
+            self.connection_status_changed.emit(False, None)
+            return False
+        except ValueError as e:
+            logging.error(f"Invalid configuration: {e}")
+            self.error_occurred.emit(f"Invalid configuration: {e}")
+            self.connected = False
+            self.connection_status_changed.emit(False, None)
+            return False
         except Exception as e:
             logging.error(f"Failed to initialize agent: {e}")
             self.error_occurred.emit(f"Failed to initialize agent: {e}")
@@ -100,6 +112,16 @@ class AgentController(QObject):
             response = await self.agent.process_message(message)
             self.message_processed.emit(response)
             return response
+        except MCPConnectionError as e:
+            logging.error(f"Connection error while processing message: {e}")
+            self.error_occurred.emit(f"Connection error: {e}")
+            self.connected = False
+            self.connection_status_changed.emit(False, None)
+            return f"Connection error: {e}. Please check your connection and try again."
+        except MCPToolError as e:
+            logging.error(f"Tool error while processing message: {e}")
+            self.error_occurred.emit(f"Tool error: {e}")
+            return f"Tool error: {e}. Please try a different approach."
         except Exception as e:
             logging.error(f"Error processing message: {e}")
             self.error_occurred.emit(f"Error processing message: {e}")
@@ -112,6 +134,7 @@ class AgentController(QObject):
                 await self.mcp_client.disconnect()
             except Exception as e:
                 logging.error(f"Error disconnecting from MCP server: {e}")
+                self.error_occurred.emit(f"Error disconnecting from MCP server: {e}")
                 
         self.connected = False
         self.connection_status_changed.emit(False, None)
@@ -160,3 +183,9 @@ class AgentController(QObject):
             # Update connection status if connection was lost
             self.connected = False
             self.connection_status_changed.emit(False, None)
+        except Exception as e:
+            logging.error(f"Unexpected error refreshing tools and resources: {e}")
+            self.error_occurred.emit(f"Unexpected error refreshing tools and resources: {e}")
+            
+            # Don't update connection status for non-connection errors
+            # as the connection might still be valid

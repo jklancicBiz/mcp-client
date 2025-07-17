@@ -4,11 +4,12 @@ Main Window component for MCP Agent.
 This module provides the main window for the MCP Agent GUI.
 """
 
-from PyQt6.QtWidgets import QMainWindow, QSplitter, QStatusBar, QMenuBar, QMenu, QDialog
+from PyQt6.QtWidgets import QMainWindow, QSplitter, QStatusBar, QMenuBar, QMenu, QDialog, QProgressBar
 from PyQt6.QtCore import Qt, QSize, QPoint, pyqtSignal
 from PyQt6.QtGui import QCloseEvent, QAction
 from mcp_agent.ui.components.chat_panel import ChatPanel
 from mcp_agent.ui.components.tools_panel import ToolsPanel
+from mcp_agent.ui.components.notification import NotificationManager, NotificationType
 from mcp_agent.ui.models.ui_config import UIConfig
 
 class MainWindow(QMainWindow):
