@@ -1,0 +1,11 @@
+# Core dependencies
+asyncio
+pyyaml
+openai>=1.0.0
+anthropic>=0.8.0
+
+# GUI dependencies
+PyQt6>=6.5.0  # For GUI components
+PyQt6-Qt6>=6.5.0  # Qt6 bindings
+PyQt6-sip>=13.5.0  # SIP bindings for PyQt6
+qasync>=0.23.0  # For asyncio integration with Qt
