@@ -35,6 +35,10 @@ The agent consists of several key components:
 1. **Clone or download the code**
 2. **Install dependencies:**
    ```bash
+   # Install all dependencies
+   pip install -r requirements.txt
+   
+   # Or install manually:
    # Core dependencies
    pip install pyyaml openai anthropic
    
@@ -313,8 +317,11 @@ The GUI interface provides a user-friendly way to interact with the MCP Agent:
 - **Chat Panel**: Interactive chat interface with message history
 - **Tools Panel**: Visual display of available MCP tools and resources
 - **Settings Dialog**: Configure LLM providers and MCP servers
-- **Status Bar**: Real-time connection and processing status
-- **Error Handling**: Visual error notifications and recovery options
+- **Status Bar**: Real-time connection and processing status with temporary messages
+- **Progress Indicators**: Visual progress bars for long-running operations
+- **Notification System**: Animated toast notifications with different severity levels (info, success, warning, error)
+- **Centralized Error Handling**: User-friendly error messages with detailed logging and fallback options
+- **Feedback Manager**: Comprehensive user feedback system coordinating status messages, progress indicators, and notifications
 
 ### GUI Components
 
